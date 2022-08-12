@@ -3,14 +3,19 @@
 
 #include <iostream>
 #include <conio.h>
+#include <windows.h>
 using namespace std;
 
 // Initialixe Variable
 bool snake;
-const int w = 25;
+const int w = 55;
 const int h = 25;
 // User Variable
 int x, y, spd = 1;
+//Tail variables
+int tX[100], tY[100],tlen;
+//Tail coordinates
+int fposX, fposY,sposX,sposY;
 // Target Variable
 int targetX, targetY;
 // Game Variable
@@ -28,14 +33,16 @@ directions dir;
 void setup()
 {
     snake = true;
+    //At Zero
     dir = STOP;
     x = rand() % w;
     y = rand() % h;
     targetX = rand() % w;
     targetY = rand() % h;
     // ERROR WHEN TARGET AND PLAYER ARE ON TOP
-    while (x == targetX && targetY)
+    while (x == targetX && y == targetY)
     {
+        //Setting player and target start point
         x = rand() % w;
         y = rand() % h;
         targetX = rand() % w;
@@ -66,9 +73,25 @@ void window()
             {
                 cout << "S";
             }
+            else if (i == targetY && j == targetX)
+            {
+                cout << "O";
+            }
             else
             {
-                cout << " ";
+                bool tail = false;
+                for (int k = 0; k < tlen; k++)
+                {
+                    if (j == tX[k] && i == tY[k])
+                    {
+                        cout << "s";
+                        tail = true;
+                    }
+                }
+                if (!tail)
+                {
+                    cout << " ";
+                }
             }
         }
         cout << endl;
@@ -79,6 +102,7 @@ void window()
         cout << "*";
     }
     cout << endl;
+    cout << score;
 }
 
 void input()
@@ -120,6 +144,21 @@ void input()
 
 void program()
 {
+    //Tail
+    fposX = tX[0];
+    fposY = tY[0];
+    tX[0] = x;
+    tY[0] = y;
+    for (int i = 1; i < tlen; i++)
+    {
+        sposX = tX[i];
+        sposY = tY[i];
+        tX[i] = fposX;
+        tY[i] = fposY;
+        fposX = sposX;
+        fposY = sposY;
+    }
+    //Move Snake
     switch (dir)
     {
     case LEFT:
@@ -135,9 +174,27 @@ void program()
         x += spd;
         break;
     }
-    if (x <= 0 || x >= w - 1 || y <= 0 || y >= h - 1)
+
+    //Snake Border Hit
+    if (x <= 0 || x >= w - 1 || y < 0 || y > h - 1)
     {
         snake = false;
+    }
+    //Snake tail hit
+    for (int i = 0; i < tlen; i++)
+    {
+        if (x == tX[i] && y = tY[i])
+        {
+            snake = false;
+        }
+    }
+    //Snake hits Target
+    if (x == targetX && y == targetY)
+    {
+        targetX = rand() % w;
+        targetY = rand() % h;
+        score++;
+        tlen++;
     }
 }
 int main()
@@ -148,7 +205,7 @@ int main()
         window();
         input();
         program();
+        Sleep(30);
     }
 
-    return 0;
 }
