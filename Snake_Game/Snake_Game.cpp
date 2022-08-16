@@ -2,12 +2,11 @@
 // CONSOLE GAME
 
 #include <iostream>
-#include <conio.h>
 #include <windows.h>
 using namespace std;
 
-// Initialixe Variable
-bool snake;
+// Initialise Variable
+bool snake , menu, normalgame;
 const int w = 55;
 const int h = 25;
 // User Variable
@@ -30,9 +29,54 @@ enum directions
 };
 directions dir;
 
-void setup()
+void mainMenu()
+{
+    system("cls");
+    cout << "This is the Main Menu:" << endl;
+    cout << "Play the Game"<< endl;
+    cout << "Options" << endl;
+    cout << "End Game" << endl;
+
+    if (GetAsyncKeyState(VK_RETURN))
+    {
+        menu = false;
+    }
+    else if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState('A'))
+    {
+        dir = STOP;
+    }
+    else if (GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState('D'))
+    {
+        dir = STOP;
+    }
+    else if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState('S'))
+    {
+        dir = STOP;
+    }
+    else if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState('W'))
+    {
+        dir = STOP;
+    }
+}
+
+void gamesetup()
 {
     snake = true;
+    menu = true;
+
+}
+
+void gameover()
+{
+    normalgame = false;
+    menu = true;
+    tlen = 0;
+    score = 0;
+}
+
+void normalsetup()
+{
+    normalgame = true;
     //At Zero
     dir = STOP;
     x = rand() % w;
@@ -57,7 +101,7 @@ void window()
     // Top border
     for (int i = 0; i < w; i++)
     {
-        cout << "*";
+        cout << "#";
     }
     cout << endl;
     // Body
@@ -67,15 +111,15 @@ void window()
         {
             if (j == 0 || j == w - 1)
             {
-                cout << "*";
+                cout << "#";
             }
             else if (i == y && j == x)
             {
-                cout << "S";
+                cout << "A";
             }
             else if (i == targetY && j == targetX)
             {
-                cout << "O";
+                cout << "S";
             }
             else
             {
@@ -84,7 +128,7 @@ void window()
                 {
                     if (j == tX[k] && i == tY[k])
                     {
-                        cout << "s";
+                        cout << "a";
                         tail = true;
                     }
                 }
@@ -99,46 +143,39 @@ void window()
     // Bottom border
     for (int i = 0; i < w; i++)
     {
-        cout << "*";
+        cout << "#";
     }
     cout << endl;
-    cout << score;
+    //Score board
+    cout << "Score: "<<score;
 }
-
+// controls setting A,S,D,W & arow keys
 void input()
 {
-    if (_kbhit())
+    if (menu == false && normalgame == true)
     {
-        switch (_getch())
+        if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState('A') && dir != RIGHT)
         {
-        case 'a':
-            if (dir != RIGHT)
-            {
-                dir = LEFT;
-            }
-            break;
-        case 's':
-            if (dir != UP)
-            {
-                dir = DOWN;
-            }
-            break;
-        case 'd':
-            if (dir != LEFT)
-            {
-                dir = RIGHT;
-            }
-            break;
-        case 'w':
-            if (dir != DOWN)
-            {
-                dir = UP;
-            }
-            break;
-        case '0':
-            snake = false;
-            break;
+            dir = LEFT;
         }
+
+        else if (GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState('D') && dir != LEFT)
+        {
+            dir = RIGHT;
+        }
+        else if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState('S') && dir != UP)
+        {
+            dir = DOWN;
+        }
+        else if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState('W') && dir != DOWN)
+        {
+            dir = UP;
+        }
+        else if (GetAsyncKeyState(VK_RETURN))
+        {
+            return;
+        }
+
     }
 }
 
@@ -178,14 +215,14 @@ void program()
     //Snake Border Hit
     if (x <= 0 || x >= w - 1 || y < 0 || y > h - 1)
     {
-        snake = false;
+        gameover();
     }
     //Snake tail hit
     for (int i = 0; i < tlen; i++)
     {
-        if (x == tX[i] && y = tY[i])
+        if (x == tX[i] && y == tY[i])
         {
-            snake = false;
+            gameover();
         }
     }
     //Snake hits Target
@@ -193,19 +230,29 @@ void program()
     {
         targetX = rand() % w;
         targetY = rand() % h;
-        score++;
+        score += 10;
         tlen++;
     }
 }
 int main()
 {
-    setup();
+    gamesetup();
     while (snake == true)
     {
-        window();
-        input();
-        program();
-        Sleep(30);
+        if(menu == true)
+        {
+            mainMenu();
+        }
+        else if (menu == false)
+        {
+            normalsetup();
+            while (normalgame == true)
+            {
+                window();
+                input();
+                program();
+                Sleep(30);
+            }
+        }
     }
-
 }
